@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "vgYdc8rC2ok=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\yih27\\cs20200_spy_breaker\\SpyBreaker\\SpyBreaker.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\yih27\\.nuget\\packages\\fsharp.core\\10.0.103\\fsharp.core.10.0.103.nupkg.sha512",
+    "C:\\Users\\yih27\\.nuget\\packages\\raylib-cs\\6.1.1\\raylib-cs.6.1.1.nupkg.sha512"
+  ],
+  "logs": []
+}

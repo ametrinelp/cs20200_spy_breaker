@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="SpyBreaker">
+    <resource name="FSharpSignatureData.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpOptimizationData.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.SpyBreaker" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.SpyBreaker" action="remove"></resource>
+  </assembly>
+</linker>
