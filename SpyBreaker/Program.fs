@@ -1,53 +1,81 @@
 ﻿namespace SpyBreaker
 
 open System
+open System.IO
 open Raylib_cs
-open SpyBreaker.Domain
-open SpyBreaker.Logic
+open SpyBreaker.Game
 open SpyBreaker.UI
 
 module Program =
+    let private introTypingSpeed = 0.045f
+    let private fontChars = Array.append [| 0x0020 .. 0x007E |] [| 0xAC00 .. 0xD7A3 |]
+    let private introText =
+        "두둥....폭탄 해체를 시작합니다.\n코드는 중복 없는 4자리 숫자입니다.\n10번의 턴 안에 코드를 입력하면 됩니다.\n\n힌트는 4자리 중 하나의 위치와 숫자를 알려주지만,\n힌트를 쓰면 턴이 2개 줄어듭니다.\n힌트는 딱! 한 번만 주어집니다."
+
     [<EntryPoint>]
     let main _ =
-        Raylib.InitWindow(900, 700, "Smartphone Lock")
-        let font = Raylib.LoadFontEx("malgun.ttf", 32, Array.append [| 0x0020 .. 0x007E |] [| 0xAC00 .. 0xD7A3 |], 11172)
-        
-        let mutable state = { SecretCode = generateSecret(); TurnsLeft = 10; History = []; UsedSpy = false; LastHint = None; CurrentInput = ""; IsGameOver = false; Message = "4자리 입력" }
-        let introText = "MT 다음 날, 핸드폰이 잠겼다!\n친구가 보낸 카톡: 단톡에 왜 그랬냐?\n\n[ENTER]를 눌러 잠금 해제 시작"
+        Raylib.InitWindow(1280, 820, "Spy Breaker")
+        Raylib.SetTargetFPS(60)
+
+        let fontPath = Path.Combine(AppContext.BaseDirectory, "MALGUN.TTF")
+        let font = Raylib.LoadFontEx(fontPath, 40, fontChars, fontChars.Length)
+
+        let mutable state = initialState ()
         let mutable showIntro = true
-        let mutable timer = 0.0f
-        let mutable charIndex = 0
+        let mutable introTimer = 0f
+        let mutable introIndex = 0
+        let mutable isRunning = true
 
-        while UI.isTrue (Raylib.WindowShouldClose()) |> not do
+        while isRunning && not (UI.isTrue (Raylib.WindowShouldClose())) do
+            let dt = Raylib.GetFrameTime()
+
             if showIntro then
-                timer <- timer + Raylib.GetFrameTime()
-                if timer > 0.05f && charIndex < introText.Length then charIndex <- charIndex + 1; timer <- 0.0f
-                if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Enter)) then showIntro <- false
-            
-            Raylib.BeginDrawing()
-            UI.drawScene font state (introText.Substring(0, charIndex)) showIntro
-            
-            if not showIntro && not state.IsGameOver then
-                let mutable cp = Raylib.GetCharPressed()
-                while cp > 0 do
-                    let c = char cp
-                    if Char.IsDigit(c) && state.CurrentInput.Length < 4 then state <- { state with CurrentInput = state.CurrentInput + string c }
-                    cp <- Raylib.GetCharPressed()
-                
-                if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Enter)) && state.CurrentInput.Length = 4 then
-                    let (s, b) = calculateResult state.SecretCode (parseInput state.CurrentInput)
-                    let newTurns = state.TurnsLeft - 1
-                    let isWin = (s = 4)
-                    let isLose = (newTurns <= 0 && not isWin)
-                    let msg = if isWin then "해제 성공!" else if isLose then "실패! 잠김" else s.ToString() + "S " + b.ToString() + "B"
-                    state <- { state with TurnsLeft = newTurns; History = (parseInput state.CurrentInput, s, b) :: state.History; CurrentInput = ""; Message = msg; IsGameOver = (isWin || isLose) }
-                
-                if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.S)) && not state.UsedSpy && state.TurnsLeft >= 2 then
-                    let idx = rnd.Next(0, 4)
-                    let msg = (idx+1).ToString() + "번째는 " + state.SecretCode.[idx].ToString() + "임"
-                    state <- { state with UsedSpy = true; TurnsLeft = state.TurnsLeft - 2; Message = msg }
+                introTimer <- introTimer + dt
+                if introTimer >= introTypingSpeed && introIndex < introText.Length then
+                    introIndex <- introIndex + 1
+                    introTimer <- 0f
 
+                if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Enter)) then
+                    showIntro <- false
+                    introIndex <- introText.Length
+            else
+                if state.AlertAnimTime > 0f then
+                    state <- { state with AlertAnimTime = max 0f (state.AlertAnimTime - dt) }
+
+                if state.IsGameOver && state.Result.IsSome then
+                    state <- { state with EndingAnimTime = min 1.2f (state.EndingAnimTime + dt) }
+
+                if not state.IsGameOver then
+                    let mutable cp = Raylib.GetCharPressed()
+                    while cp > 0 do
+                        let c = char cp
+                        if Char.IsDigit c && state.CurrentInput.Length < 4 then
+                            state <- { state with CurrentInput = state.CurrentInput + string c }
+                        cp <- Raylib.GetCharPressed()
+
+                    if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Backspace)) && state.CurrentInput.Length > 0 then
+                        state <- { state with CurrentInput = state.CurrentInput.Substring(0, state.CurrentInput.Length - 1) }
+
+                    if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Enter)) then
+                        state <- submitGuess state
+
+                    let hintClicked =
+                        if UI.isTrue (Raylib.IsMouseButtonPressed(MouseButton.Left)) then
+                            let mousePosition = Raylib.GetMousePosition()
+                            UI.isTrue (Raylib.CheckCollisionPointRec(mousePosition, UI.hintButtonRect))
+                        else
+                            false
+
+                    if UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.S)) || hintClicked then
+                        state <- requestHint state
+                elif UI.isTrue (Raylib.IsKeyPressed(KeyboardKey.Enter)) then
+                    isRunning <- false
+
+            Raylib.BeginDrawing()
+            let introPreview = if introIndex >= introText.Length then introText else introText.Substring(0, introIndex)
+            UI.drawScene font state introPreview showIntro
             Raylib.EndDrawing()
+
         Raylib.UnloadFont(font)
         Raylib.CloseWindow()
         0

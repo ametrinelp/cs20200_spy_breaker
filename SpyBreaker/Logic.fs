@@ -21,7 +21,7 @@ let calculateResult (secret: Code) (guess: Code) =
     (strikes, common - strikes)
 
 let isValid (input: string) =
-    input.Length = 4 && (input |> Seq.forall Char.IsDigit) && (input |> Seq.distinct |> Seq.length = 4)
+    input.Length = 4 && (input |> Seq.forall Char.IsDigit)
 
 let parseInput (input: string) =
     input |> Seq.map (fun c -> int c - int '0') |> List.ofSeq

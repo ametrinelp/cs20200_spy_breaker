@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("SpyBreaker")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fb5f30027ff62b587313c3e135f3666d27e4c30")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+93f93b6db7100af6cd9d3e6f38d6afa327bc1407")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("SpyBreaker")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("SpyBreaker")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

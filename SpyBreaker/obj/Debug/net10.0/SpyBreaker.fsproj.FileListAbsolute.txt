@@ -34,3 +34,4 @@ C:\Users\yih27\cs20200_spy_breaker\SpyBreaker\bin\Debug\net10.0\runtimes\osx-arm
 C:\Users\yih27\cs20200_spy_breaker\SpyBreaker\bin\Debug\net10.0\runtimes\osx-x64\native\libraylib.dylib
 C:\Users\yih27\cs20200_spy_breaker\SpyBreaker\bin\Debug\net10.0\runtimes\win-x64\native\raylib.dll
 C:\Users\yih27\cs20200_spy_breaker\SpyBreaker\bin\Debug\net10.0\runtimes\win-x86\native\raylib.dll
+C:\Users\yih27\cs20200_spy_breaker\SpyBreaker\bin\Debug\net10.0\MALGUN.TTF
