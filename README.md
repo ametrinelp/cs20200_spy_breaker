@@ -38,10 +38,14 @@ https://dotnet.microsoft.com/
 
 From the repository root:
 
-```powershell
-dotnet restore
+dotnet restore SpyBreaker/SpyBreaker.fsproj
 dotnet run --project SpyBreaker
-```
+
+Alternatively:
+
+cd SpyBreaker
+dotnet restore
+dotnet run
 
 This command builds and launches the game window.
 
